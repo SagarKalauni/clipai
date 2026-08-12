@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipAI â€“ YouTube to Viral Shorts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* â•â• Reset & Base â•â• */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090f;--s1:#111827;--s2:#1c2333;
+  --acc:#7c3aed;--acc2:#a78bfa;
+  --rose:#f43f5e;--amber:#f59e0b;--green:#10b981;
+  --txt:#f1f5f9;--muted:#94a3b8;--dim:#475569;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --glow:0 0 32px rgba(124,58,237,0.3);
+  --r:10px;--r2:18px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+body{overflow:hidden;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+
+/* â•â• Layout â•â• */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.screen.show{display:flex}
+
+/* â•â• Header â•â• */
+header{height:54px;min-height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(9,9,15,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:50;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:9px;font-weight:900;font-size:1.1rem}
+.logo-dot{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:.8rem;box-shadow:var(--glow)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:.82rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.btn-pri{background:linear-gradient(135deg,var(--acc),#6d28d9);color:#fff;box-shadow:var(--glow)}
+.btn-pri:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn-pri:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sec{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+.btn-sec:hover{color:var(--txt);border-color:var(--acc)}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SCREEN 1 â€” HOME / INPUT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+#sHome{background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(124,58,237,.18) 0%,transparent 65%)}
+.home-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;gap:32px;overflow-y:auto}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:99px;font-size:.75rem;font-weight:700;background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.4);color:var(--acc2)}
+.hero-h{font-size:clamp(2rem,5vw,3rem);font-weight:900;text-align:center;line-height:1.1}
+.grad{background:linear-gradient(90deg,#a78bfa,#f43f5e,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--muted);text-align:center;max-width:480px;line-height:1.65;font-size:.95rem}
+
+/* Input card */
+.input-card{width:100%;max-width:640px;background:var(--s1);border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5),var(--glow)}
+.ic-tabs{display:flex;border-bottom:1px solid var(--border)}
+.ict{flex:1;padding:14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.ict.on{color:var(--acc2);border-bottom-color:var(--acc)}
+.ic-panel{display:none;padding:24px}
+.ic-panel.on{display:block}
+
+/* YouTube panel */
+.yt-label{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.yt-label i{color:#ff4444;font-size:1rem}
+.yt-row{display:flex;gap:8px;background:var(--s2);border:1.5px solid var(--border2);border-radius:var(--r);padding:6px 10px;align-items:center;transition:border-color .2s}
+.yt-row:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.yt-row input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:.92rem;padding:7px 6px}
+.yt-row input::placeholder{color:var(--dim)}
+.yt-note{margin-top:10px;font-size:.73rem;color:var(--dim);display:flex;gap:6px;align-items:flex-start;line-height:1.5}
+
+/* Upload panel */
+.drop-zone{border:2px dashed rgba(124,58,237,.5);border-radius:var(--r);padding:36px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(124,58,237,.04)}
+.drop-zone:hover,.drop-zone.over{background:rgba(124,58,237,.1);border-color:var(--acc2)}
+.dz-ico{width:56px;height:56px;margin:0 auto 14px;border-radius:50%;background:rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--acc)}
+.drop-zone h3{font-size:1rem;margin-bottom:4px}
+.drop-zone p{color:var(--muted);font-size:.82rem;margin-bottom:16px}
+
+/* feature pills */
+.feats{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.f{display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--muted)}
+.f i{color:var(--acc2);font-size:.9rem}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SCREEN 2 â€” PROCESSING
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+#sProcess{align-items:center;justify-content:center;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(124,58,237,.14) 0%,transparent 70%)}
+.proc-wrap{text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;padding:40px}
+.spin-orb{position:relative;width:110px;height:110px;margin-bottom:6px}
+.sr{position:absolute;border-radius:50%;border:2px solid rgba(124,58,237,.25);animation:spin 3s linear infinite}
+.sr.a{inset:0;border-top-color:var(--acc);animation-duration:2s}
+.sr.b{inset:-13px;animation-direction:reverse;border-top-color:var(--acc2);animation-duration:3.5s}
+.sr.c{inset:-26px;border-top-color:var(--rose);animation-duration:5s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orb-mid{position:absolute;inset:10px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;box-shadow:var(--glow)}
+.proc-wrap h2{font-size:1.5rem;font-weight:800}
+.proc-wrap p{color:var(--muted);font-size:.88rem}
+.prog-bg{width:300px;height:6px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2),var(--rose));border-radius:99px;width:0%;transition:width .4s}
+.step-list{display:flex;flex-direction:column;gap:9px;text-align:left;width:260px}
+.step{display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--dim);transition:color .3s}
+.step.done{color:var(--green)}.step.active{color:var(--txt);font-weight:600}
+.step.active i{color:var(--acc2);animation:spin 1s linear infinite;display:inline-block}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SCREEN 3 â€” CLIPS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+#sClips{overflow:hidden}
+.clips-bar{height:58px;min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.clips-bar-l{display:flex;align-items:center;gap:14px}
+.vi-info{display:flex;flex-direction:column}
+.vi-name{font-weight:800;font-size:.9rem;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vi-meta{font-size:.72rem;color:var(--muted)}
+.dur-pills{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.dp{padding:8px 14px;background:none;border:none;color:var(--muted);font-size:.78rem;font-weight:700;cursor:pointer;border-right:1px solid var(--border);transition:all .2s}
+.dp:last-child{border-right:none}
+.dp.on{background:var(--acc);color:#fff}
+.clips-scroll{flex:1;overflow-y:auto;padding:20px}
+.clips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+
+/* Clip card */
+.clip-card{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:all .25s}
+.clip-card:hover{border-color:rgba(124,58,237,.55);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.4),0 0 18px rgba(124,58,237,.15)}
+.card-video{position:relative;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden}
+.card-video video{width:100%;height:100%;object-fit:cover;display:block}
+.card-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);opacity:0;transition:opacity .2s}
+.clip-card:hover .card-ov{opacity:1}
+.play-circle{width:48px;height:48px;border-radius:50%;background:rgba(124,58,237,.9);color:#fff;border:none;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--glow)}
+.card-badges{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between}
+.score-badge{font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:99px}
+.sc-hi{background:rgba(239,68,68,.85);color:#fff}
+.sc-md{background:rgba(245,158,11,.85);color:#fff}
+.dur-badge{background:rgba(0,0,0,.75);color:#fff;font-size:.65rem;font-weight:700;padding:3px 7px;border-radius:6px}
+.cap-strip{position:absolute;bottom:0;left:0;right:0;padding:10px 8px 8px;text-align:center;background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,transparent 100%);font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:#FFE600;letter-spacing:.5px;text-shadow:0 2px 6px rgba(0,0,0,.8)}
+.card-info{padding:10px 12px 12px}
+.card-title{font-size:.82rem;font-weight:700;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-btns{display:flex;gap:7px;margin-top:8px}
+.cbtn{flex:1;padding:8px;border-radius:8px;font-size:.73rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.cbtn-edit{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+.cbtn-edit:hover{border-color:var(--acc);color:var(--txt)}
+.cbtn-dl{background:linear-gradient(135deg,var(--acc),#6d28d9);color:#fff;box-shadow:0 4px 12px rgba(124,58,237,.3)}
+.cbtn-dl:hover{filter:brightness(1.1)}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STUDIO MODAL
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.modal-bg{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:12px}
+.modal-bg.hide{display:none}
+.modal{width:100%;max-width:880px;max-height:94vh;background:var(--s1);border:1px solid var(--border2);border-radius:var(--r2);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+.modal-hdr{height:52px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-hdr h3{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.modal-hdr h3 i{color:var(--acc)}
+.x-btn{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.x-btn:hover{background:rgba(255,255,255,.08);color:var(--txt)}
+.modal-body{display:grid;grid-template-columns:auto 1fr;flex:1;overflow:hidden;min-height:0}
+
+/* Studio left â€” canvas */
+.studio-left{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;flex-shrink:0}
+#studioCanvas{display:block;border-radius:10px;max-height:390px;max-width:100%}
+.s-controls{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:7px 12px;width:100%;max-width:320px}
+.s-btn{background:none;border:none;color:var(--txt);cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.95rem;transition:background .2s}
+.s-btn:hover{background:rgba(255,255,255,.1)}
+.seek-wrap{flex:1;display:flex;align-items:center;gap:7px}
+.tc{font-size:.68rem;font-family:monospace;color:var(--muted);white-space:nowrap}
+input[type=range]{accent-color:var(--acc);cursor:pointer}
+.seekbar{flex:1}
+.ratio-bar{display:flex;gap:7px}
+.rb{background:none;border:1px solid var(--border2);color:var(--muted);padding:5px 11px;border-radius:7px;font-size:.73rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
+.rb.on{background:rgba(124,58,237,.2);border-color:var(--acc);color:#fff}
+
+/* Studio right â€” settings */
+.studio-right{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:0;border-left:1px solid var(--border)}
+.ss{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.ss:last-child{border-bottom:none}
+.ss-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:9px}
+.cap-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cap-opt{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .2s}
+.cap-opt:hover{border-color:var(--acc)}
+.cap-opt.on{border-color:#FFE600;background:rgba(255,230,0,.06)}
+.cap-thumb{font-weight:900;font-size:.78rem;margin-bottom:3px}
+.ct-h{font-family:'Bebas Neue',sans-serif;color:#FFE600;letter-spacing:1px}
+.ct-t{background:#000;color:#fff;border-radius:3px;padding:0 2px}
+.ct-m{color:rgba(255,255,255,.7);font-size:.7rem}
+.ct-n{color:#00FFFF;font-family:'Bebas Neue',sans-serif;text-shadow:0 0 6px #00FFFF}
+.ct-f{color:#FF6A00;font-family:'Bebas Neue',sans-serif}
+.cap-opt span{font-size:.58rem;color:var(--muted)}
+.col-row{display:flex;gap:10px}
+.ci{display:flex;flex-direction:column;gap:3px;align-items:center}
+.ci label{font-size:.63rem;color:var(--dim)}
+.ci input[type=color]{width:36px;height:26px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:none;padding:2px}
+.full-range{width:100%;accent-color:var(--acc);cursor:pointer;margin-top:4px}
+.pos-row{display:flex;gap:6px}
+.pos-btn,.bg-btn{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);padding:6px 4px;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px}
+.pos-btn:hover,.bg-btn:hover{border-color:var(--acc);color:var(--txt)}
+.pos-btn.on,.bg-btn.on{background:rgba(124,58,237,.2);border-color:var(--acc);color:#fff}
+.hook-input{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:.85rem;outline:none;font-family:inherit}
+.hook-input:focus{border-color:var(--acc)}
+.tog{display:flex;align-items:center;gap:8px;font-size:.8rem;cursor:pointer;color:var(--txt);padding:4px 0}
+.trim-row{display:flex;gap:10px}
+.ti{flex:1;display:flex;flex-direction:column;gap:4px}
+.ti label{font-size:.67rem;color:var(--dim)}
+.ti input{background:var(--s2);border:1px solid var(--border);color:var(--txt);border-radius:8px;padding:7px;font-size:.85rem;outline:none;text-align:center;width:100%}
+.exp-area{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.dl-btn{width:100%;padding:13px;border-radius:9px;background:linear-gradient(135deg,var(--acc),#6d28d9);color:#fff;border:none;font-size:.92rem;font-weight:800;cursor:pointer;box-shadow:var(--glow);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.dl-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.dl-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ep-bg{height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.ep-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:99px;transition:width .2s}
+.ep-pct{font-size:.75rem;color:var(--muted);text-align:center;font-weight:700}
+.exp-prog{display:flex;flex-direction:column;gap:7px}
+.exp-prog.hide{display:none}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:2000;padding:11px 22px;border-radius:9px;font-size:.83rem;max-width:500px;text-align:center;transition:opacity .3s;pointer-events:none;opacity:0;border:1px solid transparent}
+
+</style>
+</head>
+<body>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SCREEN: HOME â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<div id="sHome" class="screen show">
+  <header>
+    <div class="logo">
+      <div class="logo-dot">âœ¦</div>
+      ClipAI
+    </div>
+    <div class="hdr-right">
+      <span style="font-size:.78rem;color:var(--muted)">Powered by yt-dlp</span>
+    </div>
+  </header>
+
+  <div class="home-body">
+    <div class="badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Opus Clip-style AI Short Generator</div>
+    <h1 class="hero-h">Paste any <span class="grad">YouTube link</span><br>get viral short clips</h1>
+    <p class="hero-sub">Our server downloads the video, AI finds the best moments, you get real clips with animated captions ready to download.</p>
+
+    <div class="input-card">
+      <!-- Tabs -->
+      <div class="ic-tabs">
+        <button class="ict on" data-tab="tYT"><i class="fa-brands fa-youtube" style="color:#ff4444"></i> YouTube / Video Link</button>
+        <button class="ict" data-tab="tFile"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Video File</button>
+      </div>
+
+      <!-- YouTube Tab -->
+      <div class="ic-panel on" id="tYT">
+        <div class="yt-label"><i class="fa-brands fa-youtube"></i> Paste your YouTube or video URL below</div>
+        <div class="yt-row">
+          <i class="fa-solid fa-link" style="color:var(--dim);flex-shrink:0"></i>
+          <input id="urlIn" type="url" placeholder="https://www.youtube.com/watch?v=...  or  https://youtu.be/...">
+          <button class="btn btn-pri" id="btnGo"><i class="fa-solid fa-bolt"></i> Generate Clips</button>
+        </div>
+        <div class="yt-note">
+          <i class="fa-solid fa-circle-info" style="color:var(--acc2);flex-shrink:0;margin-top:1px"></i>
+          <span>Server downloads the YouTube video using yt-dlp, then AI finds the best 15s / 30s / 60s moments. Takes ~30â€“60s on first load, instant on repeat. Supports YouTube, youtu.be, and any direct .mp4 link.</span>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:.73rem;color:var(--muted);font-weight:600">Quick test:</span>
+          <button class="btn btn-sec" style="font-size:.73rem;padding:5px 12px" data-sample="https://www.youtube.com/watch?v=dQw4w9WgXcQ">ðŸ“º YouTube Sample</button>
+          <button class="btn btn-sec" style="font-size:.73rem;padding:5px 12px" data-sample="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4">ðŸŽ¬ MP4 Sample</button>
+          <button class="btn btn-sec" style="font-size:.73px;padding:5px 12px" data-sample="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4">ðŸŒ¿ Long Video</button>
+        </div>
+      </div>
+
+      <!-- Upload Tab -->
+      <div class="ic-panel" id="tFile">
+        <input type="file" id="fileIn" accept="video/*" hidden>
+        <div class="drop-zone" id="dropZone">
+          <div class="dz-ico"><i class="fa-solid fa-film"></i></div>
+          <h3>Drop your video here</h3>
+          <p>MP4, MOV, WebM, MKV â€” any length</p>
+          <button class="btn btn-pri" onclick="document.getElementById('fileIn').click()"><i class="fa-solid fa-folder-open"></i> Browse File</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="feats">
+      <div class="f"><i class="fa-brands fa-youtube"></i><span>Real YouTube download</span></div>
+      <div class="f"><i class="fa-solid fa-closed-captioning"></i><span>Animated captions</span></div>
+      <div class="f"><i class="fa-solid fa-fire"></i><span>AI virality score</span></div>
+      <div class="f"><i class="fa-solid fa-download"></i><span>HD clip export</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SCREEN: PROCESSING â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<div id="sProcess" class="screen">
+  <header>
+    <div class="logo"><div class="logo-dot">âœ¦</div> ClipAI</div>
+    <button class="btn btn-sec" id="btnCancelProc"><i class="fa-solid fa-xmark"></i> Cancel</button>
+  </header>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div class="proc-wrap">
+      <div class="spin-orb">
+        <div class="sr a"></div><div class="sr b"></div><div class="sr c"></div>
+        <div class="orb-mid"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      </div>
+      <h2 id="procH">Downloading videoâ€¦</h2>
+      <p id="procSub">Please wait while yt-dlp fetches your video</p>
+      <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+      <div class="step-list">
+        <div class="step done" id="st0"><i class="fa-solid fa-check-circle"></i> Connected</div>
+        <div class="step" id="st1"><i class="fa-regular fa-circle"></i> Downloading video</div>
+        <div class="step" id="st2"><i class="fa-regular fa-circle"></i> Finding viral moments</div>
+        <div class="step" id="st3"><i class="fa-regular fa-circle"></i> Generating captions</div>
+        <div class="step" id="st4"><i class="fa-regular fa-circle"></i> Done</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SCREEN: CLIPS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<div id="sClips" class="screen">
+  <header>
+    <div class="logo"><div class="logo-dot">âœ¦</div> ClipAI</div>
+    <div class="hdr-right">
+      <button class="btn btn-sec" id="btnNewVid"><i class="fa-solid fa-plus"></i> New Video</button>
+    </div>
+  </header>
+  <div class="clips-bar">
+    <div class="clips-bar-l">
+      <div class="vi-info">
+        <div class="vi-name" id="viName">Video</div>
+        <div class="vi-meta" id="viMeta">0 clips Â· 0:00</div>
+      </div>
+    </div>
+    <div class="dur-pills">
+      <button class="dp on" data-d="0">All Clips</button>
+      <button class="dp" data-d="15">15s Reels</button>
+      <button class="dp" data-d="30">30s TikTok</button>
+      <button class="dp" data-d="60">60s Shorts</button>
+    </div>
+  </div>
+  <div class="clips-scroll">
+    <div class="clips-grid" id="clipsGrid"></div>
+  </div>
+</div>
+
+<!-- STUDIO MODAL -->
+<div class="modal-bg hide" id="modalBg">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3><i class="fa-solid fa-film"></i> <span id="modalTitle">Clip Studio</span></h3>
+      <button class="x-btn" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- LEFT: Preview -->
+      <div class="studio-left">
+        <video id="srcVid" crossorigin="anonymous" playsinline preload="auto" style="display:none" muted></video>
+        <canvas id="studioCanvas" style="border-radius:10px"></canvas>
+
+        <!-- Controls -->
+        <div class="s-controls">
+          <button class="s-btn" id="btnPlay"><i class="fa-solid fa-play"></i></button>
+          <div class="seek-wrap">
+            <span class="tc" id="tcNow">0:00</span>
+            <input type="range" class="seekbar" id="seekBar" min="0" max="100" value="0" step="0.05">
+            <span class="tc" id="tcEnd">0:15</span>
+          </div>
+          <button class="s-btn" id="btnMute"><i class="fa-solid fa-volume-xmark"></i></button>
+        </div>
+        <div class="ratio-bar">
+          <button class="rb on" data-r="9:16"><i class="fa-solid fa-mobile-screen-button"></i> 9:16</button>
+          <button class="rb" data-r="1:1"><i class="fa-solid fa-square"></i> 1:1</button>
+          <button class="rb" data-r="16:9"><i class="fa-solid fa-tv"></i> 16:9</button>
+        </div>
+        <!-- Transcription status -->
+        <div id="txStatus" style="display:none;align-items:center;gap:6px;font-size:.72rem;color:#a5b4fc;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:7px;padding:6px 10px;width:100%;max-width:320px;box-sizing:border-box"></div>
+      </div>
+
+      <!-- RIGHT: Settings -->
+      <div class="studio-right">
+
+        <!-- Caption Presets -->
+        <div class="ss">
+          <div class="ss-label">Caption Style</div>
+          <div class="cap-grid">
+            <div class="cap-opt on" data-p="hormozi"><div class="cap-thumb ct-h">VIRAL</div><span>Hormozi</span></div>
+            <div class="cap-opt" data-p="tiktok"><div class="cap-thumb ct-t">TREND</div><span>TikTok</span></div>
+            <div class="cap-opt" data-p="minimal"><div class="cap-thumb ct-m">clean</div><span>Minimal</span></div>
+            <div class="cap-opt" data-p="neon"><div class="cap-thumb ct-n">NEON</div><span>Neon</span></div>
+            <div class="cap-opt" data-p="fire"><div class="cap-thumb ct-f">FIRE</div><span>Fire</span></div>
+          </div>
+        </div>
+
+        <!-- Colors -->
+        <div class="ss">
+          <div class="ss-label">Caption Colors</div>
+          <div class="col-row">
+            <div class="ci"><label>Highlight</label><input type="color" id="cAct" value="#FFE600"></div>
+            <div class="ci"><label>Normal</label><input type="color" id="cNorm" value="#FFFFFF"></div>
+            <div class="ci"><label>Shadow</label><input type="color" id="cShadow" value="#000000"></div>
+          </div>
+        </div>
+
+        <!-- Font Size -->
+        <div class="ss">
+          <div class="ss-label" style="display:flex;justify-content:space-between">Font Size <span id="fontSizeVal" style="color:var(--acc2)">70px</span></div>
+          <input type="range" class="full-range" id="fontSize" min="36" max="120" value="70" step="2">
+        </div>
+
+        <!-- Caption Position -->
+        <div class="ss">
+          <div class="ss-label">Caption Position</div>
+          <div class="pos-row">
+            <button class="pos-btn" data-pos="top"><i class="fa-solid fa-arrow-up"></i> Top</button>
+            <button class="pos-btn" data-pos="mid"><i class="fa-solid fa-minus"></i> Middle</button>
+            <button class="pos-btn on" data-pos="bot"><i class="fa-solid fa-arrow-down"></i> Bottom</button>
+          </div>
+        </div>
+
+        <!-- Hook Text -->
+        <div class="ss">
+          <div class="ss-label">Hook Banner Text</div>
+          <input type="text" class="hook-input" id="hookText" value="WAIT TILL THE END ðŸ˜±" maxlength="50">
+        </div>
+
+        <!-- Background Style -->
+        <div class="ss">
+          <div class="ss-label">Background Style</div>
+          <div class="pos-row">
+            <button class="bg-btn on" data-bg="blur"><i class="fa-solid fa-wand-sparkles"></i> Blur</button>
+            <button class="bg-btn" data-bg="crop"><i class="fa-solid fa-crop"></i> Crop Fill</button>
+            <button class="bg-btn" data-bg="bars"><i class="fa-solid fa-film"></i> Black Bars</button>
+          </div>
+        </div>
+
+        <!-- Overlays -->
+        <div class="ss">
+          <div class="ss-label">Overlays</div>
+          <label class="tog"><input type="checkbox" id="togHook" checked> Hook banner (top)</label>
+          <label class="tog"><input type="checkbox" id="togBar" checked> Progress bar</label>
+          <label class="tog"><input type="checkbox" id="togWM" checked> Watermark (@clipai)</label>
+        </div>
+
+        <!-- Trim -->
+        <div class="ss">
+          <div class="ss-label">Trim Clip (seconds)</div>
+          <div class="trim-row">
+            <div class="ti"><label>Start</label><input type="number" id="trimS" step="0.5" min="0"></div>
+            <div class="ti"><label>End</label><input type="number" id="trimE" step="0.5" min="0"></div>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="exp-area">
+          <button class="dl-btn" id="btnDownload"><i class="fa-solid fa-download"></i> Download Short Clip</button>
+          <div class="exp-prog hide" id="expProg">
+            <div class="ep-bg"><div class="ep-fill" id="epFill"></div></div>
+            <div class="ep-pct" id="epPct">0%</div>
+          </div>
+          <a id="dlA" hidden download></a>
+        </div>
+
+      </div><!-- /studio-right -->
+    </div><!-- /modal-body -->
+  </div><!-- /modal -->
+</div><!-- /modalBg -->
+
+<div class="toast" id="toast"></div>
+
+<script src="clipper.js"></script>
+<script src="renderer.js"></script>
+<script src="exporter.js"></script>
+<script src="transcriber.js"></script>
+<script>function onYouTubeIframeAPIReady(){console.log('YT API ready');}</script>
+<script src="https://www.youtube.com/iframe_api" async></script>
+<script src="app.js"></script>
+</body>
+</html>

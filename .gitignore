@@ -1,0 +1,13 @@
+node_modules/
+tmp_videos/
+*.log
+.DS_Store
+Thumbs.db
+*.part
+yt-dlp.exe
+yt-dlp
+ngrok.exe
+*.old
+cloudflared.exe
+test.mp4
+live_url.txt

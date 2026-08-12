@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: clipai
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      npm install
+      curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o yt-dlp || true
+      chmod +x yt-dlp || true
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
