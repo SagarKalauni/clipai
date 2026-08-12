@@ -67,9 +67,21 @@ async function go() {
       await loadEmbed(d.ytId, d.title || 'YouTube Short', d.duration || 300);
     }
   } catch(err) {
-    show('sHome');
-    toast('❌ ' + (err.message || 'Failed'), 'err');
+    const ytId = extractYTId(url);
+    if (ytId) {
+      stepUI(2, 'Finding viral moments…'); prog(55);
+      await loadEmbed(ytId, 'YouTube Video', 300);
+    } else {
+      show('sHome');
+      toast('❌ ' + (err.message || 'Failed'), 'err');
+    }
   }
+}
+
+function extractYTId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+  return m ? m[1] : null;
 }
 
 // File upload / drop zone
